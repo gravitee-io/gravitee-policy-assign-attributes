@@ -1,4 +1,4 @@
-= Assign Attributes Policy
+= Assign attributes policy
 
 ifdef::env-github[]
 image:https://ci.gravitee.io/buildStatus/icon?job=gravitee-io/gravitee-policy-assign-attributes/master["Build status", link="https://ci.gravitee.io/buildStatus/icon?job=gravitee-io/gravitee-policy-assign-attributes/master/"]
@@ -20,13 +20,13 @@ endif::[]
 
 == Description
 
-The `assign attributes` policy is used to set variables such as request attributes or other attributes to the execution context.
+You can use the `assign-attributes` policy to set variables such as request attributes and other execution context attributes.
 
-It can be useful if you want to retrieve initial request attributes after Transform Headers/Query Parameters policies and reuse them afterwards (Dynamic Routing for example).
+You can use it to retrieve initial request attributes after `Transform headers` or `Transform query parameters` policies and reuse them in other policies (`Dynamic routing`, for example).
 
-=== Example
+== Examples
 
-=== Request headers
+=== Request header
 
 Let's say we want to inject request attributes into the context attributes.
 
@@ -60,9 +60,9 @@ Get the foo query param:
 {#context.attributes['initialFooParamHeader']}
 ----
 
-=== Request object
+=== Request objects
 
-You can also be more general and put complex object into the context attributes:
+You can also be more general and put complex objects into the context attributes:
 
 ```
 "assign-attributes": {
@@ -75,7 +75,7 @@ You can also be more general and put complex object into the context attributes:
 }
 ```
 
-To extract the request attributes you can use the following syntax :
+To extract the request attributes you can use the following syntax:
 
 Get the content-type header:
 
@@ -89,12 +89,14 @@ Get the foo query param:
 {#context.attributes['initialRequest'].params['foo']}
 ----
 
-== Http Status Code
+== Errors
+
+=== HTTP status code
 
 |===
 |Code |Message
 
 .^| ```500```
-| An error occurs while setting request attributes to the execution context
+| An error occurred while setting request attributes in the execution context
 
 |===
