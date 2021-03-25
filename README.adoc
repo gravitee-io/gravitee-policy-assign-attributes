@@ -24,6 +24,10 @@ You can use the `assign-attributes` policy to set variables such as request attr
 
 You can use it to retrieve initial request attributes after `Transform headers` or `Transform query parameters` policies and reuse them in other policies (`Dynamic routing`, for example).
 
+=== Policy identifier
+
+You can enable or disable the policy with policy identifier `policy-assign-attributes`.
+
 == Examples
 
 === Request header
