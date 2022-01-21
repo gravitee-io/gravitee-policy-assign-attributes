@@ -15,6 +15,11 @@
  */
 package io.gravitee.policy.assignattributes;
 
+import static org.mockito.AdditionalAnswers.returnsFirstArg;
+import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.eq;
+import static org.mockito.Mockito.*;
+
 import io.gravitee.common.http.HttpHeaders;
 import io.gravitee.el.TemplateEngine;
 import io.gravitee.gateway.api.ExecutionContext;
@@ -24,21 +29,15 @@ import io.gravitee.policy.api.PolicyChain;
 import io.gravitee.policy.assignattributes.configuration.AssignAttributesPolicyConfiguration;
 import io.gravitee.policy.assignattributes.configuration.Attribute;
 import io.gravitee.policy.assignattributes.configuration.PolicyScope;
+import java.util.Collections;
+import java.util.LinkedList;
+import java.util.List;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
-
-import java.util.Collections;
-import java.util.LinkedList;
-import java.util.List;
-
-import static org.mockito.AdditionalAnswers.returnsFirstArg;
-import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.eq;
-import static org.mockito.Mockito.*;
 
 /**
  * @author Titouan COMPIEGNE (titouan.compiegne at graviteesource.com)
@@ -113,7 +112,7 @@ public class AssignAttributesPolicyTest {
         httpHeaders.add("X-Gravitee-Test", "Value");
 
         when(assignVariablePolicyConfiguration.getAttributes())
-                .thenReturn(Collections.singletonList(new Attribute("Context-Attribute-Key", "{#request.headers['X-Gravitee-Test']}")));
+            .thenReturn(Collections.singletonList(new Attribute("Context-Attribute-Key", "{#request.headers['X-Gravitee-Test']}")));
 
         // Run
         assignVariablePolicy.onRequest(request, response, executionContext, policyChain);
@@ -131,7 +130,7 @@ public class AssignAttributesPolicyTest {
 
         when(assignVariablePolicyConfiguration.getScope()).thenReturn(PolicyScope.RESPONSE);
         when(assignVariablePolicyConfiguration.getAttributes())
-                .thenReturn(Collections.singletonList(new Attribute("Context-Attribute-Key", "{#response.headers['X-Gravitee-Test']}")));
+            .thenReturn(Collections.singletonList(new Attribute("Context-Attribute-Key", "{#response.headers['X-Gravitee-Test']}")));
 
         // Run
         assignVariablePolicy.onResponse(request, response, executionContext, policyChain);
@@ -183,5 +182,4 @@ public class AssignAttributesPolicyTest {
         verify(executionContext, times(2)).setAttribute(any(), any());
         verify(policyChain).doNext(request, response);
     }
-
 }

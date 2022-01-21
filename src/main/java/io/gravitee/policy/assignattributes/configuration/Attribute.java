@@ -25,8 +25,7 @@ public class Attribute {
 
     private String value;
 
-    public Attribute() {
-    }
+    public Attribute() {}
 
     public Attribute(String name, String value) {
         this.name = name;

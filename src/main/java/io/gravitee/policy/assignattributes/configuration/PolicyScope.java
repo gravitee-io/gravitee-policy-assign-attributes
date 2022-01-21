@@ -20,9 +20,8 @@ package io.gravitee.policy.assignattributes.configuration;
  * @author GraviteeSource Team
  */
 public enum PolicyScope {
-
     REQUEST,
     RESPONSE,
     REQUEST_CONTENT,
-    RESPONSE_CONTENT
+    RESPONSE_CONTENT,
 }

@@ -42,8 +42,8 @@ public class AssignAttributesPolicy {
 
     private static final Logger logger = LoggerFactory.getLogger(AssignAttributesPolicy.class);
 
-    private final static String REQUEST_VARIABLE = "request";
-    private final static String RESPONSE_VARIABLE = "request";
+    private static final String REQUEST_VARIABLE = "request";
+    private static final String RESPONSE_VARIABLE = "request";
 
     private final AssignAttributesPolicyConfiguration assignVariablePolicyConfiguration;
 
@@ -53,9 +53,11 @@ public class AssignAttributesPolicy {
 
     @OnRequestContent
     public ReadWriteStream onRequestContent(Request request, ExecutionContext executionContext) {
-        if (assignVariablePolicyConfiguration.getScope() != null && assignVariablePolicyConfiguration.getScope() == PolicyScope.REQUEST_CONTENT) {
+        if (
+            assignVariablePolicyConfiguration.getScope() != null &&
+            assignVariablePolicyConfiguration.getScope() == PolicyScope.REQUEST_CONTENT
+        ) {
             return new BufferedReadWriteStream() {
-
                 Buffer buffer = Buffer.buffer();
 
                 @Override
@@ -67,8 +69,10 @@ public class AssignAttributesPolicy {
                 @Override
                 public void end() {
                     String content = buffer.toString();
-                    executionContext.getTemplateEngine().getTemplateContext()
-                            .setVariable(REQUEST_VARIABLE, new EvaluableRequest(request, content));
+                    executionContext
+                        .getTemplateEngine()
+                        .getTemplateContext()
+                        .setVariable(REQUEST_VARIABLE, new EvaluableRequest(request, content));
 
                     // assign
                     assign(executionContext);
@@ -87,9 +91,11 @@ public class AssignAttributesPolicy {
 
     @OnResponseContent
     public ReadWriteStream onResponseContent(Response response, ExecutionContext executionContext) {
-        if (assignVariablePolicyConfiguration.getScope() != null && assignVariablePolicyConfiguration.getScope() == PolicyScope.RESPONSE_CONTENT) {
+        if (
+            assignVariablePolicyConfiguration.getScope() != null &&
+            assignVariablePolicyConfiguration.getScope() == PolicyScope.RESPONSE_CONTENT
+        ) {
             return new BufferedReadWriteStream() {
-
                 Buffer buffer = Buffer.buffer();
 
                 @Override
@@ -101,8 +107,10 @@ public class AssignAttributesPolicy {
                 @Override
                 public void end() {
                     String content = buffer.toString();
-                    executionContext.getTemplateEngine().getTemplateContext()
-                            .setVariable(RESPONSE_VARIABLE, new EvaluableResponse(response, content));
+                    executionContext
+                        .getTemplateEngine()
+                        .getTemplateContext()
+                        .setVariable(RESPONSE_VARIABLE, new EvaluableResponse(response, content));
 
                     // assign
                     assign(executionContext);
@@ -143,19 +151,22 @@ public class AssignAttributesPolicy {
 
     private void assign(ExecutionContext executionContext) {
         if (assignVariablePolicyConfiguration.getAttributes() != null) {
-            assignVariablePolicyConfiguration.getAttributes().forEach(
-                    attribute -> {
-                        if (attribute.getName() != null && !attribute.getName().trim().isEmpty()) {
-                            try {
-                                Object extValue = (attribute.getValue() != null) ? executionContext.getTemplateEngine().getValue(attribute.getValue(), Object.class) : null;
-                                if (extValue != null) {
-                                    executionContext.setAttribute(attribute.getName(), extValue);
-                                }
-                            } catch (Exception ex) {
-                                logger.error("An error occurs while decoding context attribute", ex);
+            assignVariablePolicyConfiguration
+                .getAttributes()
+                .forEach(attribute -> {
+                    if (attribute.getName() != null && !attribute.getName().trim().isEmpty()) {
+                        try {
+                            Object extValue = (attribute.getValue() != null)
+                                ? executionContext.getTemplateEngine().getValue(attribute.getValue(), Object.class)
+                                : null;
+                            if (extValue != null) {
+                                executionContext.setAttribute(attribute.getName(), extValue);
                             }
+                        } catch (Exception ex) {
+                            logger.error("An error occurs while decoding context attribute", ex);
                         }
-                    });
+                    }
+                });
         }
     }
 }
