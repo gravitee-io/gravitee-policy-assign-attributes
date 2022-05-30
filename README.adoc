@@ -26,6 +26,14 @@ You can use the `assign-attributes` policy to set variables such as request attr
 
 You can use it to retrieve initial request attributes after `Transform headers` or `Transform query parameters` policies and reuse them in other policies (`Dynamic routing`, for example).
 
+== Compatibility with APIM
+
+|===
+| Plugin version | APIM version
+
+| Up to 1.x                   | All
+|===
+
 == Examples
 
 === Request header
