@@ -15,11 +15,7 @@
  */
 package io.gravitee.policy.assignattributes;
 
-import static com.github.tomakehurst.wiremock.client.WireMock.equalTo;
-import static com.github.tomakehurst.wiremock.client.WireMock.get;
-import static com.github.tomakehurst.wiremock.client.WireMock.getRequestedFor;
-import static com.github.tomakehurst.wiremock.client.WireMock.ok;
-import static com.github.tomakehurst.wiremock.client.WireMock.urlPathEqualTo;
+import static com.github.tomakehurst.wiremock.client.WireMock.*;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import io.gravitee.apim.gateway.tests.sdk.AbstractPolicyTest;
@@ -41,19 +37,19 @@ import org.junit.jupiter.api.Test;
  * @author GraviteeSource Team
  */
 @GatewayTest
-@DeployApi("/apis/assign-attributes.json")
 class AssignAttributesPolicyIntegrationTest extends AbstractPolicyTest<AssignAttributesPolicy, AssignAttributesPolicyConfiguration> {
 
     @Override
     public void configurePolicies(Map<String, PolicyPlugin> policies) {
         // This policy will transform the attributes into headers to be able to test them.
         // on request phase: attributes must start with "test-request-"
-        // on response phase : attributes must start with "test-response-"
+        // on response phase: attributes must start with "test-response-"
         policies.put("attributes-to-headers", PolicyBuilder.build("attributes-to-headers", AttributesToHeadersPolicy.class));
     }
 
     @Test
-    @DisplayName("Should assign attributes")
+    @DisplayName("Should assign attributes (and convert them to headers for test purpose)")
+    @DeployApi("/apis/assign-attributes.json")
     void shouldAssignAttributes(WebClient client) throws Exception {
         wiremock.stubFor(get("/endpoint").willReturn(ok()));
 
@@ -76,5 +72,28 @@ class AssignAttributesPolicyIntegrationTest extends AbstractPolicyTest<AssignAtt
                 .withHeader("test-request-attr1", equalTo("request-1"))
                 .withHeader("test-request-content", equalTo("request-content"))
         );
+    }
+
+    @Test
+    @DisplayName("Should assign attributes with EL (and convert them to headers for test purpose)")
+    @DeployApi("/apis/assign-attributes-with-el.json")
+    void shouldAssignAttributesWithEL(WebClient client) throws Exception {
+        String requestContent = "request-content";
+        String responseContent = "response-content";
+        wiremock.stubFor(post("/endpoint").withRequestBody(equalTo(requestContent)).willReturn(ok(responseContent)));
+
+        final TestObserver<HttpResponse<Buffer>> obs = client.post("/test").rxSendBuffer(Buffer.buffer(requestContent)).test();
+
+        awaitTerminalEvent(obs);
+        obs
+            .assertComplete()
+            .assertValue(response -> {
+                assertThat(response.statusCode()).isEqualTo(200);
+                assertThat(response.headers().get("test-response-content")).isEqualTo(responseContent);
+                return true;
+            })
+            .assertNoErrors();
+
+        wiremock.verify(1, postRequestedFor(urlPathEqualTo("/endpoint")).withHeader("test-request-content", equalTo(requestContent)));
     }
 }

@@ -44,18 +44,7 @@ public class AttributesToHeadersPolicy {
 
     @OnRequestContent
     public ReadWriteStream<Buffer> onRequestContent(ExecutionContext context, Request request) {
-        return new BufferedReadWriteStream() {
-            @Override
-            public SimpleReadWriteStream<Buffer> write(Buffer content) {
-                return this;
-            }
-
-            @Override
-            public void end() {
-                transform(context, "test-request-", request.headers());
-                super.end();
-            }
-        };
+        return new AttributesToHeaderStream(context, "test-request-", request.headers());
     }
 
     @OnResponse
@@ -67,26 +56,46 @@ public class AttributesToHeadersPolicy {
 
     @OnResponseContent
     public ReadWriteStream<Buffer> onResponseContent(ExecutionContext context, Response response) {
-        return new BufferedReadWriteStream() {
-            @Override
-            public SimpleReadWriteStream<Buffer> write(Buffer content) {
-                return this;
-            }
-
-            @Override
-            public void end() {
-                transform(context, "test-response-", response.headers());
-                super.end();
-            }
-        };
+        return new AttributesToHeaderStream(context, "test-response-", response.headers());
     }
 
-    private void transform(ExecutionContext context, String prefix, HttpHeaders request) {
+    static class AttributesToHeaderStream extends BufferedReadWriteStream {
+
+        private final Buffer buffer = Buffer.buffer();
+        private final ExecutionContext context;
+
+        private final String prefix;
+        private final HttpHeaders headers;
+
+        AttributesToHeaderStream(ExecutionContext context, String prefix, HttpHeaders headers) {
+            this.context = context;
+            this.prefix = prefix;
+            this.headers = headers;
+        }
+
+        @Override
+        public SimpleReadWriteStream<Buffer> write(Buffer content) {
+            buffer.appendBuffer(content);
+            return this;
+        }
+
+        @Override
+        public void end() {
+            transform(context, prefix, headers);
+
+            if (buffer.length() > 0) {
+                super.write(buffer);
+            }
+            super.end();
+        }
+    }
+
+    private static void transform(ExecutionContext context, String prefix, HttpHeaders headers) {
         context
             .getAttributes()
             .forEach((key, value) -> {
                 if (key.startsWith(prefix)) {
-                    request.add(key, value.toString());
+                    headers.add(key, value.toString());
                 }
             });
     }

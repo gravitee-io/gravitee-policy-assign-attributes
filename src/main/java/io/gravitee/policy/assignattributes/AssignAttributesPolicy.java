@@ -43,7 +43,7 @@ public class AssignAttributesPolicy {
     private static final Logger logger = LoggerFactory.getLogger(AssignAttributesPolicy.class);
 
     private static final String REQUEST_VARIABLE = "request";
-    private static final String RESPONSE_VARIABLE = "request";
+    private static final String RESPONSE_VARIABLE = "response";
 
     private final AssignAttributesPolicyConfiguration assignVariablePolicyConfiguration;
 
