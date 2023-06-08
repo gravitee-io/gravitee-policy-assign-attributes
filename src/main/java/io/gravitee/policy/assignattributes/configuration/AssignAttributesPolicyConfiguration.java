@@ -16,30 +16,28 @@
 package io.gravitee.policy.assignattributes.configuration;
 
 import io.gravitee.policy.api.PolicyConfiguration;
+import io.gravitee.policy.assignattributes.Attribute;
+import io.gravitee.policy.assignattributes.PolicyScope;
 import java.util.List;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 /**
  * @author Titouan COMPIEGNE (titouan.compiegne at graviteesource.com)
  * @author GraviteeSource Team
  */
+@Getter
+@Setter
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
 public class AssignAttributesPolicyConfiguration implements PolicyConfiguration {
 
+    @Builder.Default
     private PolicyScope scope = PolicyScope.REQUEST;
+
     private List<Attribute> attributes;
-
-    public PolicyScope getScope() {
-        return scope;
-    }
-
-    public void setScope(PolicyScope scope) {
-        this.scope = scope;
-    }
-
-    public List<Attribute> getAttributes() {
-        return attributes;
-    }
-
-    public void setAttributes(List<Attribute> attributes) {
-        this.attributes = attributes;
-    }
 }

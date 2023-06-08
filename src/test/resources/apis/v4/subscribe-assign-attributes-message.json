@@ -1,0 +1,88 @@
+{
+    "id": "subscribe-assign-attribute",
+    "name": "subscribe-assign-attribute",
+    "apiVersion": "1.0",
+    "definitionVersion": "4.0.0",
+    "type": "message",
+    "analytics": {},
+    "description": "subscribe-assign-attribute",
+    "listeners": [
+        {
+            "type": "http",
+            "paths": [
+                {
+                    "path": "/subscribe-assign-attribute"
+                }
+            ],
+            "entrypoints": [
+                {
+                    "type": "sse",
+                    "configuration": {
+                        "heartbeatIntervalInMs": 5000,
+                        "metadataAsComment": false,
+                        "headersAsComment": true
+                    }
+                }
+            ]
+        }
+    ],
+    "endpointGroups": [
+        {
+            "name": "default",
+            "type": "mock",
+            "endpoints": [
+                {
+                    "name": "default",
+                    "type": "mock",
+                    "weight": 1,
+                    "inheritConfiguration": false,
+                    "configuration": {
+                        "messageInterval": 500,
+                        "messageContent": "{ \"mycontent\" }",
+                        "messageCount": 12
+                    }
+                }
+            ]
+        }
+    ],
+    "flows": [
+        {
+            "name": "flow-1",
+            "enabled": true,
+            "selectors" : [
+                {
+                    "type": "channel",
+                    "operation": [ "SUBSCRIBE" ],
+                    "channel": "/",
+                    "channel-operator": "STARTS_WITH"
+                }
+            ],
+            "request": [],
+            "response": [],
+            "subscribe": [
+                {
+                    "name": "Assign Attributes",
+                    "description": "",
+                    "enabled": true,
+                    "policy": "policy-assign-attributes",
+                    "configuration": {
+                        "attributes": [
+                            {
+                                "name": "test-message-response-attr1",
+                                "value": "{#message.content}"
+                            }
+                        ]
+                    }
+                },
+                {
+                    "name": "Attributes to headers",
+                    "description": "",
+                    "enabled": true,
+                    "policy": "attributes-to-headers",
+                    "configuration": {}
+                }
+            ],
+            "publish": []
+        }
+    ]
+}

@@ -15,171 +15,302 @@
  */
 package io.gravitee.policy.assignattributes;
 
-import static org.mockito.AdditionalAnswers.returnsFirstArg;
-import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.eq;
-import static org.mockito.Mockito.*;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.any;
+import static org.mockito.Mockito.eq;
+import static org.mockito.Mockito.lenient;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
 
-import io.gravitee.common.http.HttpHeaders;
 import io.gravitee.el.TemplateEngine;
-import io.gravitee.gateway.api.ExecutionContext;
-import io.gravitee.gateway.api.Request;
-import io.gravitee.gateway.api.Response;
-import io.gravitee.policy.api.PolicyChain;
+import io.gravitee.gateway.api.http.HttpHeaders;
+import io.gravitee.gateway.reactive.api.context.ExecutionContext;
+import io.gravitee.gateway.reactive.api.context.Request;
+import io.gravitee.gateway.reactive.api.context.Response;
+import io.gravitee.gateway.reactive.api.el.EvaluableRequest;
+import io.gravitee.gateway.reactive.api.el.EvaluableResponse;
+import io.gravitee.gateway.reactive.api.message.DefaultMessage;
+import io.gravitee.gateway.reactive.api.message.Message;
+import io.gravitee.gateway.reactive.core.context.MutableExecutionContext;
+import io.gravitee.gateway.reactive.core.context.MutableRequest;
+import io.gravitee.gateway.reactive.core.context.MutableResponse;
+import io.gravitee.gateway.reactive.core.context.interruption.InterruptionFailureException;
 import io.gravitee.policy.assignattributes.configuration.AssignAttributesPolicyConfiguration;
-import io.gravitee.policy.assignattributes.configuration.Attribute;
-import io.gravitee.policy.assignattributes.configuration.PolicyScope;
+import io.reactivex.rxjava3.core.Completable;
+import io.reactivex.rxjava3.core.Maybe;
 import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.InjectMocks;
+import java.util.function.Function;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayNameGeneration;
+import org.junit.jupiter.api.DisplayNameGenerator;
+import org.junit.jupiter.api.Nested;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.Spy;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 /**
  * @author Titouan COMPIEGNE (titouan.compiegne at graviteesource.com)
  * @author GraviteeSource Team
  */
-@RunWith(MockitoJUnitRunner.class)
+@ExtendWith(MockitoExtension.class)
+@DisplayNameGeneration(DisplayNameGenerator.ReplaceUnderscores.class)
 public class AssignAttributesPolicyTest {
 
-    @InjectMocks
-    private AssignAttributesPolicy assignVariablePolicy;
+    @Mock(extraInterfaces = MutableExecutionContext.class)
+    private ExecutionContext ctx;
 
-    @Mock
-    private AssignAttributesPolicyConfiguration assignVariablePolicyConfiguration;
-
-    @Mock
-    private ExecutionContext executionContext;
-
-    @Mock
-    private TemplateEngine templateEngine;
-
-    @Mock
+    @Mock(extraInterfaces = MutableRequest.class)
     private Request request;
 
-    @Mock
+    @Mock(extraInterfaces = MutableResponse.class)
     private Response response;
 
-    @Mock
-    protected PolicyChain policyChain;
+    @Spy
+    private Completable spyCompletable = Completable.complete();
 
-    @Before
+    private Message message;
+
+    @BeforeEach
     public void init() {
-        when(executionContext.getTemplateEngine()).thenReturn(templateEngine);
-        when(templateEngine.getValue(any(String.class), any())).thenAnswer(returnsFirstArg());
-    }
+        TemplateEngine templateEngine = TemplateEngine.templateEngine();
 
-    @Test
-    public void testOnRequest_noAssignation() {
-        assignVariablePolicy.onRequest(request, response, executionContext, policyChain);
-
-        verify(policyChain).doNext(request, response);
-    }
-
-    @Test
-    public void testOnResponse_noAssignation() {
-        assignVariablePolicy.onResponse(request, response, executionContext, policyChain);
-
-        verify(policyChain).doNext(request, response);
-    }
-
-    @Test
-    public void testOnRequest_invalidScope() {
-        when(assignVariablePolicyConfiguration.getScope()).thenReturn(PolicyScope.RESPONSE);
-        assignVariablePolicy.onRequest(request, response, executionContext, policyChain);
-
-        verify(executionContext, never()).setAttribute(any(), any());
-        verify(policyChain).doNext(request, response);
-    }
-
-    @Test
-    public void testOnResponse_invalidScope() {
-        when(assignVariablePolicyConfiguration.getScope()).thenReturn(PolicyScope.REQUEST);
-        assignVariablePolicy.onResponse(request, response, executionContext, policyChain);
-
-        verify(executionContext, never()).setAttribute(any(), any());
-        verify(policyChain).doNext(request, response);
-    }
-
-    @Test
-    public void testOnRequest_addAttribute() {
-        // Prepare
-        HttpHeaders httpHeaders = new HttpHeaders();
-        httpHeaders.add("X-Gravitee-Test", "Value");
-
-        when(assignVariablePolicyConfiguration.getAttributes())
-            .thenReturn(Collections.singletonList(new Attribute("Context-Attribute-Key", "{#request.headers['X-Gravitee-Test']}")));
-
-        // Run
-        assignVariablePolicy.onRequest(request, response, executionContext, policyChain);
-
-        // Verify
-        verify(executionContext).setAttribute(eq("Context-Attribute-Key"), any());
-        verify(policyChain).doNext(request, response);
-    }
-
-    @Test
-    public void testOnResponse_addAttribute() {
-        // Prepare
-        HttpHeaders httpHeaders = new HttpHeaders();
-        httpHeaders.add("X-Gravitee-Test", "Value");
-
-        when(assignVariablePolicyConfiguration.getScope()).thenReturn(PolicyScope.RESPONSE);
-        when(assignVariablePolicyConfiguration.getAttributes())
-            .thenReturn(Collections.singletonList(new Attribute("Context-Attribute-Key", "{#response.headers['X-Gravitee-Test']}")));
-
-        // Run
-        assignVariablePolicy.onResponse(request, response, executionContext, policyChain);
-
-        // Verify
-        verify(executionContext).setAttribute(eq("Context-Attribute-Key"), any());
-        verify(policyChain).doNext(request, response);
-    }
-
-    @Test
-    public void testOnRequest_addAttributes() {
-        // Prepare
-        HttpHeaders httpHeaders = new HttpHeaders();
+        HttpHeaders httpHeaders = HttpHeaders.create();
         httpHeaders.add("X-Gravitee-Test", "Value");
         httpHeaders.add("X-Gravitee-Test2", "Value2");
 
-        List<Attribute> attributes = new LinkedList<>();
-        attributes.add(new Attribute("Context-Attribute-Key", "{#request.headers['X-Gravitee-Test']}"));
-        attributes.add(new Attribute("Context-Attribute-Key2", "{#request.headers['X-Gravitee-Test2']}"));
+        //Ctx
+        lenient().when(ctx.getTemplateEngine()).thenReturn(templateEngine);
+        lenient().when(ctx.getTemplateEngine(any())).thenReturn(templateEngine);
+        lenient().when(ctx.request()).thenReturn(request);
+        lenient().when(ctx.response()).thenReturn(response);
+        lenient().when(ctx.interruptWith(any())).thenAnswer(inv -> Completable.error(new InterruptionFailureException(inv.getArgument(0))));
+        lenient()
+            .when(ctx.interruptMessageWith(any()))
+            .thenAnswer(inv -> Maybe.error(new InterruptionFailureException(inv.getArgument(0))));
 
-        when(assignVariablePolicyConfiguration.getAttributes()).thenReturn(attributes);
+        //Request
+        lenient().when(request.headers()).thenReturn(httpHeaders);
+        templateEngine.getTemplateContext().setVariable("request", new EvaluableRequest(request));
+        lenient().when(request.onMessages(any())).thenReturn(spyCompletable);
+        lenient().when(request.onMessage(any())).thenReturn(spyCompletable);
 
-        // Run
-        assignVariablePolicy.onRequest(request, response, executionContext, policyChain);
+        //Response
+        lenient().when(response.headers()).thenReturn(httpHeaders);
+        templateEngine.getTemplateContext().setVariable("response", new EvaluableResponse(response));
+        lenient().when(response.onMessages(any())).thenReturn(spyCompletable);
+        lenient().when(response.onMessage(any())).thenReturn(spyCompletable);
 
-        // Verify
-        verify(executionContext, times(2)).setAttribute(any(), any());
-        verify(policyChain).doNext(request, response);
+        //Message
+        message = new DefaultMessage("content");
+        templateEngine.getTemplateContext().setVariable("message", message);
     }
 
-    @Test
-    public void testOnResponse_addAttributes() {
-        // Prepare
-        HttpHeaders httpHeaders = new HttpHeaders();
-        httpHeaders.add("X-Gravitee-Test", "Value");
-        httpHeaders.add("X-Gravitee-Test2", "Value2");
+    @Nested
+    class onRequest {
 
-        List<Attribute> attributes = new LinkedList<>();
-        attributes.add(new Attribute("Context-Attribute-Key", "{#response.headers['X-Gravitee-Test']}"));
-        attributes.add(new Attribute("Context-Attribute-Key2", "{#response.headers['X-Gravitee-Test2']}"));
+        @Test
+        public void should_not_assign_attribute_when_config_empty() {
+            // Run
+            policy(AssignAttributesPolicyConfiguration.builder().build()).onRequest(ctx).test().assertComplete();
 
-        when(assignVariablePolicyConfiguration.getScope()).thenReturn(PolicyScope.RESPONSE);
-        when(assignVariablePolicyConfiguration.getAttributes()).thenReturn(attributes);
+            // Verify
+            verify(ctx, never()).setAttribute(any(), any());
+        }
 
-        // Run
-        assignVariablePolicy.onResponse(request, response, executionContext, policyChain);
+        @Test
+        public void should_add_attribute() {
+            // Run
+            policy(
+                AssignAttributesPolicyConfiguration
+                    .builder()
+                    .attributes(Collections.singletonList(new Attribute("Context-Attribute-Key", "{#request.headers['X-Gravitee-Test']}")))
+                    .build()
+            )
+                .onRequest(ctx)
+                .test()
+                .assertComplete();
 
-        // Verify
-        verify(executionContext, times(2)).setAttribute(any(), any());
-        verify(policyChain).doNext(request, response);
+            // Verify
+            verify(ctx).setAttribute(eq("Context-Attribute-Key"), any());
+        }
+
+        @Test
+        public void should_add_attributes() {
+            // Prepare
+            List<Attribute> attributes = new LinkedList<>();
+            attributes.add(new Attribute("Context-Attribute-Key", "{#request.headers['X-Gravitee-Test']}"));
+            attributes.add(new Attribute("Context-Attribute-Key2", "{#request.headers['X-Gravitee-Test2']}"));
+
+            // Run
+            policy(AssignAttributesPolicyConfiguration.builder().attributes(attributes).build()).onRequest(ctx).test().assertComplete();
+
+            // Verify
+            verify(ctx, times(2)).setAttribute(any(), any());
+        }
+
+        @Test
+        void should_not_interrupt_on_error() {
+            // Prepare
+            policy(
+                AssignAttributesPolicyConfiguration
+                    .builder()
+                    .attributes(Collections.singletonList(new Attribute("Context-Attribute-Key", "{#request.invalid}")))
+                    .build()
+            )
+                .onRequest(ctx)
+                .test()
+                .assertComplete();
+
+            // Verify
+            verify(ctx, never()).setAttribute(any(), any());
+        }
+    }
+
+    @Nested
+    class onResponse {
+
+        @Test
+        public void should_not_assign_attribute_when_config_empty() {
+            // Run
+            policy(AssignAttributesPolicyConfiguration.builder().build()).onResponse(ctx).test().assertComplete();
+
+            // Verify
+            verify(ctx, never()).setAttribute(any(), any());
+        }
+
+        @Test
+        public void should_add_attribute() {
+            // Run
+            policy(
+                AssignAttributesPolicyConfiguration
+                    .builder()
+                    .attributes(Collections.singletonList(new Attribute("Context-Attribute-Key", "{#response.headers['X-Gravitee-Test']}")))
+                    .build()
+            )
+                .onResponse(ctx)
+                .test()
+                .assertComplete();
+
+            // Verify
+            verify(ctx).setAttribute(eq("Context-Attribute-Key"), any());
+        }
+
+        @Test
+        public void should_add_attributes() {
+            List<Attribute> attributes = new LinkedList<>();
+            attributes.add(new Attribute("Context-Attribute-Key", "{#response.headers['X-Gravitee-Test']}"));
+            attributes.add(new Attribute("Context-Attribute-Key2", "{#response.headers['X-Gravitee-Test2']}"));
+
+            // Run
+            policy(AssignAttributesPolicyConfiguration.builder().attributes(attributes).build()).onResponse(ctx).test().assertComplete();
+
+            // Verify
+            verify(ctx, times(2)).setAttribute(any(), any());
+        }
+
+        @Test
+        void should_not_interrupt_on_error() {
+            policy(
+                AssignAttributesPolicyConfiguration
+                    .builder()
+                    .attributes(Collections.singletonList(new Attribute("Context-Attribute-Key", "{#request.invalid}")))
+                    .build()
+            )
+                .onResponse(ctx)
+                .test()
+                .assertComplete();
+
+            // Verify
+            verify(ctx, never()).setAttribute(any(), any());
+        }
+    }
+
+    @Nested
+    class onMessage {
+
+        @Test
+        public void should_add_attribute_to_message_request() {
+            // Prepare
+            policy(
+                AssignAttributesPolicyConfiguration
+                    .builder()
+                    .attributes(Collections.singletonList(new Attribute("Message-Attribute-Key", "{#message.content}")))
+                    .build()
+            )
+                .onMessageRequest(ctx)
+                .test()
+                .assertComplete();
+
+            ArgumentCaptor<Function<Message, Maybe<Message>>> requestMessagesCaptor = ArgumentCaptor.forClass(Function.class);
+            verify(request).onMessage(requestMessagesCaptor.capture());
+
+            // Run
+            Function<Message, Maybe<Message>> requestMessages = requestMessagesCaptor.getValue();
+            var messages = requestMessages.apply(message).test().assertComplete().values();
+
+            // Verify
+            assertThat(messages).hasSize(1);
+            assertThat(messages).first().matches(message -> message.attribute("Message-Attribute-Key").toString().equals("content"));
+        }
+
+        @Test
+        void should_add_attribute_to_message_response() {
+            // Prepare
+            policy(
+                AssignAttributesPolicyConfiguration
+                    .builder()
+                    .attributes(Collections.singletonList(new Attribute("Message-Attribute-Key", "{#message.content}")))
+                    .build()
+            )
+                .onMessageResponse(ctx)
+                .test()
+                .assertComplete();
+
+            ArgumentCaptor<Function<Message, Maybe<Message>>> responseMessagesCaptor = ArgumentCaptor.forClass(Function.class);
+            verify(response).onMessage(responseMessagesCaptor.capture());
+
+            // Run
+            Function<Message, Maybe<Message>> responseMessages = responseMessagesCaptor.getValue();
+            var messages = responseMessages.apply(message).test().assertComplete().values();
+
+            // Verify
+            assertThat(messages).hasSize(1);
+            assertThat(messages).first().matches(message -> message.attribute("Message-Attribute-Key").toString().equals("content"));
+        }
+
+        @Test
+        void should_not_interrupt_on_error() {
+            // Prepare
+            policy(
+                AssignAttributesPolicyConfiguration
+                    .builder()
+                    .attributes(Collections.singletonList(new Attribute("Message-Attribute-Key", "{#message.invalid}")))
+                    .build()
+            )
+                .onMessageResponse(ctx)
+                .test()
+                .assertComplete();
+
+            ArgumentCaptor<Function<Message, Maybe<Message>>> responseMessagesCaptor = ArgumentCaptor.forClass(Function.class);
+            verify(response).onMessage(responseMessagesCaptor.capture());
+
+            // Run
+            Function<Message, Maybe<Message>> responseMessages = responseMessagesCaptor.getValue();
+            var messages = responseMessages.apply(message).test().assertComplete().values();
+
+            // Verify
+            assertThat(messages).hasSize(1);
+            assertThat(messages).first().matches(message -> !message.attributeNames().contains("Message-Attribute-Key"));
+        }
+    }
+
+    AssignAttributesPolicy policy(AssignAttributesPolicyConfiguration configuration) {
+        return new AssignAttributesPolicy(configuration);
     }
 }

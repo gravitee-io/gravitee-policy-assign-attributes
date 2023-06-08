@@ -7,7 +7,9 @@ image:https://img.shields.io/badge/semantic--release-conventional%20commits-e100
 image:https://circleci.com/gh/gravitee-io/gravitee-policy-assign-attributes.svg?style=svg["CircleCI", link="https://circleci.com/gh/gravitee-io/gravitee-policy-assign-attributes"]
 endif::[]
 
-== Phase
+== Phases
+
+=== V3 engine
 
 [cols="^2,^2,^2,^2",options="header"]
 |===
@@ -17,12 +19,28 @@ endif::[]
 |X
 |X
 |X
+|===
 
+=== V4 engine
+
+[cols="4*", options="header"]
+|===
+^|onRequest
+^|onResponse
+^|onMessageRequest
+^|onMessageResponse
+
+^.^| X
+^.^| X
+^.^| X
+^.^| X
 |===
 
 == Description
 
-You can use the `assign-attributes` policy to set variables such as request attributes and other execution context attributes.
+You can use the `assign-attributes` policy to set variables such as request attributes, message attributes and other execution context attributes.
+
+#When you are using this policy on the message request or response, the attribute will be available in the message attribute list and not on the context one.#
 
 You can use it to retrieve initial request attributes after `Transform headers` or `Transform query parameters` policies and reuse them in other policies (`Dynamic routing`, for example).
 
@@ -34,6 +52,58 @@ You can use it to retrieve initial request attributes after `Transform headers` 
 | Up to 1.x                   | All
 |===
 
+== Configuration
+
+You can configure the policy with the following options:
+
+.Configuration
+[cols="5*", options=header]
+|===
+^| Property
+^| Required
+^| Description
+^| Type
+^| Default
+
+.^|scope
+^.^| only for v3 engine
+.^|The execution scope (`request` or `response`)
+^.^|string
+^.^|`REQUEST`
+
+.^|attributes
+^.^|X
+.^|List of attributes
+^.^|See <<attribute-table>>
+|
+
+|===
+
+[#attribute-table]
+.Attribute
+[cols="5*", options=header]
+|===
+^| Property
+^| Required
+^| Description
+^| Type
+^| Default
+
+|name
+^.^|X
+|attribute name
+|string
+|
+
+|value
+^.^|X
+|attribute value (can be EL)
+|string
+|
+
+|===
+
+
 == Examples
 
 === Request header
@@ -41,7 +111,8 @@ You can use it to retrieve initial request attributes after `Transform headers` 
 Let's say we want to inject request attributes into the context attributes.
 
 
-```
+[source]
+----
 "assign-attributes": {
     "attributes": [
         {
@@ -54,7 +125,7 @@ Let's say we want to inject request attributes into the context attributes.
         }
     ]
 }
-```
+----
 
 To extract the request attributes you can use the following syntax:
 
@@ -74,7 +145,8 @@ Get the foo query param:
 
 You can also be more general and put complex objects into the context attributes:
 
-```
+[source]
+----
 "assign-attributes": {
     "attributes": [
         {
@@ -83,7 +155,7 @@ You can also be more general and put complex objects into the context attributes
         }
     ]
 }
-```
+----
 
 To extract the request attributes you can use the following syntax:
 
@@ -98,6 +170,24 @@ Get the foo query param:
 ----
 {#context.attributes['initialRequest'].params['foo']}
 ----
+
+=== Message
+
+You can use for example the content of a message:
+
+[source]
+----
+"assign-attributes": {
+    "attributes": [
+        {
+            "name": "messageContent,
+            "value": "{#message.content}"
+        }
+    ]
+}
+----
+
+
 
 == Errors
 
