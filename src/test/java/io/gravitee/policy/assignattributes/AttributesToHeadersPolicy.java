@@ -23,17 +23,53 @@ import io.gravitee.gateway.api.http.HttpHeaders;
 import io.gravitee.gateway.api.stream.BufferedReadWriteStream;
 import io.gravitee.gateway.api.stream.ReadWriteStream;
 import io.gravitee.gateway.api.stream.SimpleReadWriteStream;
+import io.gravitee.gateway.reactive.api.context.GenericExecutionContext;
+import io.gravitee.gateway.reactive.api.context.HttpExecutionContext;
+import io.gravitee.gateway.reactive.api.context.MessageExecutionContext;
+import io.gravitee.gateway.reactive.api.message.Message;
+import io.gravitee.gateway.reactive.api.policy.Policy;
 import io.gravitee.policy.api.PolicyChain;
 import io.gravitee.policy.api.annotations.OnRequest;
 import io.gravitee.policy.api.annotations.OnRequestContent;
 import io.gravitee.policy.api.annotations.OnResponse;
 import io.gravitee.policy.api.annotations.OnResponseContent;
+import io.reactivex.rxjava3.core.Completable;
+import io.reactivex.rxjava3.core.Maybe;
 
 /**
  * @author Yann TAVERNIER (yann.tavernier at graviteesource.com)
  * @author GraviteeSource Team
  */
-public class AttributesToHeadersPolicy {
+public class AttributesToHeadersPolicy implements Policy {
+
+    @Override
+    public String id() {
+        return "attributes-to-headers";
+    }
+
+    @Override
+    public Completable onRequest(HttpExecutionContext ctx) {
+        return Completable.fromRunnable(() -> {
+            transform(ctx, "test-request-", ctx.request().headers());
+        });
+    }
+
+    @Override
+    public Completable onResponse(HttpExecutionContext ctx) {
+        return Completable.fromRunnable(() -> {
+            transform(ctx, "test-response-", ctx.response().headers());
+        });
+    }
+
+    @Override
+    public Completable onMessageRequest(MessageExecutionContext ctx) {
+        return ctx.request().onMessage(message -> transformMessage(message, "test-message-request-"));
+    }
+
+    @Override
+    public Completable onMessageResponse(MessageExecutionContext ctx) {
+        return ctx.response().onMessage(message -> transformMessage(message, "test-message-response-"));
+    }
 
     @OnRequest
     public void onRequest(ExecutionContext context, Request request, Response response, PolicyChain policyChain) {
@@ -98,5 +134,28 @@ public class AttributesToHeadersPolicy {
                     headers.add(key, value.toString());
                 }
             });
+    }
+
+    private void transform(GenericExecutionContext context, String prefix, HttpHeaders headers) {
+        context
+            .getAttributes()
+            .forEach((key, value) -> {
+                if (key.startsWith(prefix)) {
+                    headers.add(key, value.toString());
+                }
+            });
+    }
+
+    private Maybe<Message> transformMessage(Message message, String prefix) {
+        return Maybe.fromCallable(() -> {
+            message
+                .attributes()
+                .forEach((key, value) -> {
+                    if (key.startsWith(prefix)) {
+                        message.headers().add(key, value.toString());
+                    }
+                });
+            return message;
+        });
     }
 }

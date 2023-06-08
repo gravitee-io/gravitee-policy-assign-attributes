@@ -15,158 +15,91 @@
  */
 package io.gravitee.policy.assignattributes;
 
-import io.gravitee.gateway.api.ExecutionContext;
-import io.gravitee.gateway.api.Request;
-import io.gravitee.gateway.api.Response;
-import io.gravitee.gateway.api.buffer.Buffer;
-import io.gravitee.gateway.api.el.EvaluableRequest;
-import io.gravitee.gateway.api.el.EvaluableResponse;
-import io.gravitee.gateway.api.stream.BufferedReadWriteStream;
-import io.gravitee.gateway.api.stream.ReadWriteStream;
-import io.gravitee.gateway.api.stream.SimpleReadWriteStream;
-import io.gravitee.policy.api.PolicyChain;
-import io.gravitee.policy.api.annotations.OnRequest;
-import io.gravitee.policy.api.annotations.OnRequestContent;
-import io.gravitee.policy.api.annotations.OnResponse;
-import io.gravitee.policy.api.annotations.OnResponseContent;
+import io.gravitee.gateway.reactive.api.context.HttpExecutionContext;
+import io.gravitee.gateway.reactive.api.context.MessageExecutionContext;
+import io.gravitee.gateway.reactive.api.message.Message;
+import io.gravitee.gateway.reactive.api.policy.Policy;
 import io.gravitee.policy.assignattributes.configuration.AssignAttributesPolicyConfiguration;
-import io.gravitee.policy.assignattributes.configuration.PolicyScope;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import io.gravitee.policy.v3.assignattributes.AssignAttributesPolicyV3;
+import io.reactivex.rxjava3.core.Completable;
+import io.reactivex.rxjava3.core.Flowable;
+import io.reactivex.rxjava3.core.Maybe;
+import lombok.extern.slf4j.Slf4j;
 
 /**
- * @author Titouan COMPIEGNE (titouan.compiegne at graviteesource.com)
+ * @author Remi Baptiste (remi.baptiste at graviteesource.com)
  * @author GraviteeSource Team
  */
-public class AssignAttributesPolicy {
+@Slf4j
+public class AssignAttributesPolicy extends AssignAttributesPolicyV3 implements Policy {
 
-    private static final Logger logger = LoggerFactory.getLogger(AssignAttributesPolicy.class);
+    private final Flowable<Attribute> attributeFlowable;
 
-    private static final String REQUEST_VARIABLE = "request";
-    private static final String RESPONSE_VARIABLE = "response";
-
-    private final AssignAttributesPolicyConfiguration assignVariablePolicyConfiguration;
-
-    public AssignAttributesPolicy(final AssignAttributesPolicyConfiguration assignVariablePolicyConfiguration) {
-        this.assignVariablePolicyConfiguration = assignVariablePolicyConfiguration;
+    public AssignAttributesPolicy(final AssignAttributesPolicyConfiguration configuration) {
+        super(configuration);
+        this.attributeFlowable =
+            hasAttributes
+                ? Flowable
+                    .fromIterable(assignAttributesPolicyConfiguration.getAttributes())
+                    .filter(this::checkAttributeNameAndValue)
+                    .cache()
+                : Flowable.empty();
     }
 
-    @OnRequestContent
-    public ReadWriteStream onRequestContent(Request request, ExecutionContext executionContext) {
-        if (
-            assignVariablePolicyConfiguration.getScope() != null &&
-            assignVariablePolicyConfiguration.getScope() == PolicyScope.REQUEST_CONTENT
-        ) {
-            return new BufferedReadWriteStream() {
-                Buffer buffer = Buffer.buffer();
+    @Override
+    public String id() {
+        return "policy-assign-attributes";
+    }
 
-                @Override
-                public SimpleReadWriteStream<Buffer> write(Buffer content) {
-                    buffer.appendBuffer(content);
-                    return this;
-                }
+    @Override
+    public Completable onRequest(HttpExecutionContext ctx) {
+        return assign(ctx);
+    }
 
-                @Override
-                public void end() {
-                    String content = buffer.toString();
+    @Override
+    public Completable onResponse(HttpExecutionContext ctx) {
+        return assign(ctx);
+    }
+
+    @Override
+    public Completable onMessageRequest(MessageExecutionContext ctx) {
+        return ctx.request().onMessage(message -> assign(ctx, message));
+    }
+
+    @Override
+    public Completable onMessageResponse(MessageExecutionContext ctx) {
+        return ctx.response().onMessage(message -> assign(ctx, message));
+    }
+
+    private Completable assign(HttpExecutionContext executionContext) {
+        if (hasAttributes) {
+            return attributeFlowable
+                .flatMapMaybe(attribute ->
                     executionContext
                         .getTemplateEngine()
-                        .getTemplateContext()
-                        .setVariable(REQUEST_VARIABLE, new EvaluableRequest(request, content));
-
-                    // assign
-                    assign(executionContext);
-
-                    if (buffer.length() > 0) {
-                        super.write(buffer);
-                    }
-
-                    super.end();
-                }
-            };
+                        .eval(attribute.getValue(), Object.class)
+                        .doOnSuccess(extValue -> executionContext.setAttribute(attribute.getName(), extValue))
+                        .doOnError(t -> log.error("An error occurs while decoding context attribute {}", t.getMessage()))
+                        .onErrorComplete()
+                )
+                .ignoreElements();
         }
-
-        return null;
+        return Completable.complete();
     }
 
-    @OnResponseContent
-    public ReadWriteStream onResponseContent(Response response, ExecutionContext executionContext) {
-        if (
-            assignVariablePolicyConfiguration.getScope() != null &&
-            assignVariablePolicyConfiguration.getScope() == PolicyScope.RESPONSE_CONTENT
-        ) {
-            return new BufferedReadWriteStream() {
-                Buffer buffer = Buffer.buffer();
-
-                @Override
-                public SimpleReadWriteStream<Buffer> write(Buffer content) {
-                    buffer.appendBuffer(content);
-                    return this;
-                }
-
-                @Override
-                public void end() {
-                    String content = buffer.toString();
+    private Maybe<Message> assign(MessageExecutionContext executionContext, Message message) {
+        if (hasAttributes) {
+            return attributeFlowable
+                .flatMapMaybe(attribute ->
                     executionContext
-                        .getTemplateEngine()
-                        .getTemplateContext()
-                        .setVariable(RESPONSE_VARIABLE, new EvaluableResponse(response, content));
-
-                    // assign
-                    assign(executionContext);
-
-                    if (buffer.length() > 0) {
-                        super.write(buffer);
-                    }
-
-                    super.end();
-                }
-            };
+                        .getTemplateEngine(message)
+                        .eval(attribute.getValue(), Object.class)
+                        .doOnSuccess(extValue -> message.attribute(attribute.getName(), extValue))
+                        .onErrorComplete()
+                )
+                .ignoreElements()
+                .andThen(Maybe.just(message));
         }
-
-        return null;
-    }
-
-    @OnRequest
-    public void onRequest(Request request, Response response, ExecutionContext executionContext, PolicyChain policyChain) {
-        if (assignVariablePolicyConfiguration.getScope() == null || assignVariablePolicyConfiguration.getScope() == PolicyScope.REQUEST) {
-            // assign
-            assign(executionContext);
-        }
-
-        // continue chaining
-        policyChain.doNext(request, response);
-    }
-
-    @OnResponse
-    public void onResponse(Request request, Response response, ExecutionContext executionContext, PolicyChain policyChain) {
-        if (assignVariablePolicyConfiguration.getScope() != null && assignVariablePolicyConfiguration.getScope() == PolicyScope.RESPONSE) {
-            // assign
-            assign(executionContext);
-        }
-
-        // continue chaining
-        policyChain.doNext(request, response);
-    }
-
-    private void assign(ExecutionContext executionContext) {
-        if (assignVariablePolicyConfiguration.getAttributes() != null) {
-            assignVariablePolicyConfiguration
-                .getAttributes()
-                .forEach(attribute -> {
-                    if (attribute.getName() != null && !attribute.getName().trim().isEmpty()) {
-                        try {
-                            Object extValue = (attribute.getValue() != null)
-                                ? executionContext.getTemplateEngine().getValue(attribute.getValue(), Object.class)
-                                : null;
-                            if (extValue != null) {
-                                executionContext.setAttribute(attribute.getName(), extValue);
-                            }
-                        } catch (Exception ex) {
-                            logger.error("An error occurs while decoding context attribute", ex);
-                        }
-                    }
-                });
-        }
+        return Maybe.just(message);
     }
 }

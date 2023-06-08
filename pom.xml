@@ -34,12 +34,12 @@
     </parent>
 
     <properties>
-        <gravitee-bom.version>3.0.0</gravitee-bom.version>
-        <gravitee-apim-gateway-tests-sdk.version>3.19.6</gravitee-apim-gateway-tests-sdk.version>
-        <gravitee-gateway-api.version>1.42.0</gravitee-gateway-api.version>
+        <gravitee-bom.version>5.0.0</gravitee-bom.version>
+        <gravitee-apim-gateway-tests-sdk.version>4.0.0-SNAPSHOT</gravitee-apim-gateway-tests-sdk.version>
+        <gravitee-gateway-api.version>3.0.0-alpha.5</gravitee-gateway-api.version>
         <gravitee-policy-api.version>1.11.0</gravitee-policy-api.version>
 
-        <maven-assembly-plugin.version>3.3.0</maven-assembly-plugin.version>
+        <maven-assembly-plugin.version>3.6.0</maven-assembly-plugin.version>
         <!-- Property used by the publication job in CI-->
         <publish-folder-path>graviteeio-apim/plugins/policies</publish-folder-path>
     </properties>
@@ -82,8 +82,15 @@
 
         <!-- Test scope -->
         <dependency>
-            <groupId>org.junit.vintage</groupId>
-            <artifactId>junit-vintage-engine</artifactId>
+            <groupId>com.graviteesource.reactor</groupId>
+            <artifactId>gravitee-reactor-message</artifactId>
+            <version>1.0.0-alpha.7</version>
+            <scope>test</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>org.junit.jupiter</groupId>
+            <artifactId>junit-jupiter-engine</artifactId>
             <scope>test</scope>
         </dependency>
 
@@ -97,6 +104,17 @@
             <groupId>io.gravitee.apim.gateway</groupId>
             <artifactId>gravitee-apim-gateway-tests-sdk</artifactId>
             <version>${gravitee-apim-gateway-tests-sdk.version}</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>io.gravitee.apim.plugin.entrypoint</groupId>
+            <artifactId>gravitee-apim-plugin-entrypoint-sse</artifactId>
+            <version>${gravitee-apim-gateway-tests-sdk.version}</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.mockito</groupId>
+            <artifactId>mockito-junit-jupiter</artifactId>
             <scope>test</scope>
         </dependency>
     </dependencies>

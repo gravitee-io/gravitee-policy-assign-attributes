@@ -1,6 +1,6 @@
 {
   "id": "my-api",
-  "name": "my-api",
+  "name": "my-api-content-error",
   "gravitee": "2.0.0",
   "proxy": {
     "context_path": "/test",
@@ -37,7 +37,7 @@
             "attributes": [
               {
                 "name": "test-request-content",
-                "value": "{#request.content}"
+                "value": "{#request.invalid}"
               }
             ]
           }
@@ -62,7 +62,7 @@
             "attributes": [
               {
                 "name": "test-response-content",
-                "value": "{#response.content}"
+                "value": "{#response.invalid}"
               }
             ]
           }
