@@ -50,6 +50,7 @@ You can use it to retrieve initial request attributes after `Transform headers` 
 | Plugin version | APIM version
 
 | Up to 1.x                   | All
+| From 2.x                   | 4.0+
 |===
 
 == Configuration
