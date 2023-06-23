@@ -1,3 +1,10 @@
+# [2.0.0-alpha.2](https://github.com/gravitee-io/gravitee-policy-assign-attributes/compare/2.0.0-alpha.1...2.0.0-alpha.2) (2023-06-23)
+
+
+### Bug Fixes
+
+* bump gravitee-parent to fix release to nexus ([e4d0957](https://github.com/gravitee-io/gravitee-policy-assign-attributes/commit/e4d0957b8a163b33936e784930d08c314bbea9ae))
+
 # [2.0.0-alpha.1](https://github.com/gravitee-io/gravitee-policy-assign-attributes/compare/1.6.0-alpha.1...2.0.0-alpha.1) (2023-06-21)
 
 
