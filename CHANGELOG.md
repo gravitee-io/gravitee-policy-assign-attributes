@@ -1,3 +1,10 @@
+# [2.0.0-alpha.3](https://github.com/gravitee-io/gravitee-policy-assign-attributes/compare/2.0.0-alpha.2...2.0.0-alpha.3) (2023-06-27)
+
+
+### Features
+
+* clean and validate json schema for v4 ([f915aca](https://github.com/gravitee-io/gravitee-policy-assign-attributes/commit/f915acaf7cc90c16fe726b4f947bba4a56f76406))
+
 # [2.0.0-alpha.2](https://github.com/gravitee-io/gravitee-policy-assign-attributes/compare/2.0.0-alpha.1...2.0.0-alpha.2) (2023-06-23)
 
 
