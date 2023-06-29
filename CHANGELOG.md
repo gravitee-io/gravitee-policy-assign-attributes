@@ -1,3 +1,10 @@
+# [2.0.0-alpha.4](https://github.com/gravitee-io/gravitee-policy-assign-attributes/compare/2.0.0-alpha.3...2.0.0-alpha.4) (2023-06-29)
+
+
+### Bug Fixes
+
+* use new execution engine ([21ea3f7](https://github.com/gravitee-io/gravitee-policy-assign-attributes/commit/21ea3f757bfe3cd059be7e08f06a1e945f2056fa))
+
 # [2.0.0-alpha.3](https://github.com/gravitee-io/gravitee-policy-assign-attributes/compare/2.0.0-alpha.2...2.0.0-alpha.3) (2023-06-27)
 
 
