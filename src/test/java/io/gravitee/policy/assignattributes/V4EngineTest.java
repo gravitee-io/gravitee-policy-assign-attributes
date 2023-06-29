@@ -15,29 +15,28 @@
  */
 package io.gravitee.policy.assignattributes;
 
+import com.graviteesource.entrypoint.sse.SseEntrypointConnectorFactory;
 import com.graviteesource.reactor.message.MessageApiReactorFactory;
 import io.gravitee.apim.gateway.tests.sdk.AbstractPolicyTest;
+import io.gravitee.apim.gateway.tests.sdk.annotations.GatewayTest;
 import io.gravitee.apim.gateway.tests.sdk.configuration.GatewayConfigurationBuilder;
+import io.gravitee.apim.gateway.tests.sdk.connector.EndpointBuilder;
 import io.gravitee.apim.gateway.tests.sdk.connector.EntrypointBuilder;
 import io.gravitee.apim.gateway.tests.sdk.policy.PolicyBuilder;
 import io.gravitee.apim.gateway.tests.sdk.reactor.ReactorBuilder;
 import io.gravitee.apim.plugin.reactor.ReactorPlugin;
 import io.gravitee.definition.model.ExecutionMode;
 import io.gravitee.gateway.reactive.reactor.v4.reactor.ReactorFactory;
+import io.gravitee.plugin.endpoint.EndpointConnectorPlugin;
+import io.gravitee.plugin.endpoint.mock.MockEndpointConnectorFactory;
 import io.gravitee.plugin.entrypoint.EntrypointConnectorPlugin;
-import io.gravitee.plugin.entrypoint.sse.SseEntrypointConnectorFactory;
 import io.gravitee.plugin.policy.PolicyPlugin;
 import io.gravitee.policy.assignattributes.configuration.AssignAttributesPolicyConfiguration;
 import java.util.Map;
 import java.util.Set;
 
+@GatewayTest(v2ExecutionMode = ExecutionMode.V4_EMULATION_ENGINE)
 public class V4EngineTest extends AbstractPolicyTest<AssignAttributesPolicy, AssignAttributesPolicyConfiguration> {
-
-    @Override
-    protected void configureGateway(GatewayConfigurationBuilder gatewayConfigurationBuilder) {
-        super.configureGateway(gatewayConfigurationBuilder);
-        gatewayConfigurationBuilder.set("api.jupiterMode.enabled", "true");
-    }
 
     @Override
     public void configureEntrypoints(Map<String, EntrypointConnectorPlugin<?, ?>> entrypoints) {
@@ -45,9 +44,8 @@ public class V4EngineTest extends AbstractPolicyTest<AssignAttributesPolicy, Ass
     }
 
     @Override
-    public void configureApi(io.gravitee.definition.model.Api api) {
-        super.configureApi(api);
-        api.setExecutionMode(ExecutionMode.JUPITER);
+    public void configureEndpoints(final Map<String, EndpointConnectorPlugin<?, ?>> endpoints) {
+        endpoints.putIfAbsent("mock", EndpointBuilder.build("mock", MockEndpointConnectorFactory.class));
     }
 
     @Override

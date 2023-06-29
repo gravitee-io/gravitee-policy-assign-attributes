@@ -16,6 +16,7 @@
 package io.gravitee.policy.assignattributes;
 
 import io.gravitee.apim.gateway.tests.sdk.AbstractPolicyTest;
+import io.gravitee.apim.gateway.tests.sdk.annotations.GatewayTest;
 import io.gravitee.apim.gateway.tests.sdk.configuration.GatewayConfigurationBuilder;
 import io.gravitee.apim.gateway.tests.sdk.policy.PolicyBuilder;
 import io.gravitee.definition.model.Api;
@@ -24,19 +25,8 @@ import io.gravitee.plugin.policy.PolicyPlugin;
 import io.gravitee.policy.assignattributes.configuration.AssignAttributesPolicyConfiguration;
 import java.util.Map;
 
+@GatewayTest(v2ExecutionMode = ExecutionMode.V3)
 public class V3EngineTest extends AbstractPolicyTest<AssignAttributesPolicy, AssignAttributesPolicyConfiguration> {
-
-    @Override
-    protected void configureGateway(GatewayConfigurationBuilder gatewayConfigurationBuilder) {
-        super.configureGateway(gatewayConfigurationBuilder);
-        gatewayConfigurationBuilder.set("api.jupiterMode.enabled", "false");
-    }
-
-    @Override
-    public void configureApi(Api api) {
-        super.configureApi(api);
-        api.setExecutionMode(ExecutionMode.V3);
-    }
 
     @Override
     public void configurePolicies(Map<String, PolicyPlugin> policies) {
