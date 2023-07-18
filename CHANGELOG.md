@@ -1,3 +1,29 @@
+# [2.0.0](https://github.com/gravitee-io/gravitee-policy-assign-attributes/compare/1.5.1...2.0.0) (2023-07-18)
+
+
+### Bug Fixes
+
+* add missing breaking change and update compatibility matrix in README ([791eac8](https://github.com/gravitee-io/gravitee-policy-assign-attributes/commit/791eac8fda525b107de08066595b5d3a59f8404a))
+* bump gravitee-parent to fix release to nexus ([e4d0957](https://github.com/gravitee-io/gravitee-policy-assign-attributes/commit/e4d0957b8a163b33936e784930d08c314bbea9ae))
+* use new execution engine ([21ea3f7](https://github.com/gravitee-io/gravitee-policy-assign-attributes/commit/21ea3f757bfe3cd059be7e08f06a1e945f2056fa))
+
+
+### chore
+
+* **deps:** update gravitee-parent ([bd51e10](https://github.com/gravitee-io/gravitee-policy-assign-attributes/commit/bd51e10421397a468347c82acf2e99e66e6c9102))
+
+
+### Features
+
+* add message level support to policy ([676fc6f](https://github.com/gravitee-io/gravitee-policy-assign-attributes/commit/676fc6fca791edd28607b101f5c5009e6c66e9b0))
+* clean and validate json schema for v4 ([f915aca](https://github.com/gravitee-io/gravitee-policy-assign-attributes/commit/f915acaf7cc90c16fe726b4f947bba4a56f76406))
+
+
+### BREAKING CHANGES
+
+* **deps:** require Java17
+* This implementation is using the dependencies introduced by Gravitee V4.0
+
 # [2.0.0-alpha.4](https://github.com/gravitee-io/gravitee-policy-assign-attributes/compare/2.0.0-alpha.3...2.0.0-alpha.4) (2023-06-29)
 
 
