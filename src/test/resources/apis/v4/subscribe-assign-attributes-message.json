@@ -49,10 +49,10 @@
         {
             "name": "flow-1",
             "enabled": true,
-            "selectors" : [
+            "selectors": [
                 {
                     "type": "channel",
-                    "operation": [ "SUBSCRIBE" ],
+                    "operation": ["SUBSCRIBE"],
                     "channel": "/",
                     "channel-operator": "STARTS_WITH"
                 }
