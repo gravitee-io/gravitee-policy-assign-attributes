@@ -1,81 +1,79 @@
 {
-  "id": "my-api",
-  "name": "my-api-el",
-  "gravitee": "2.0.0",
-  "proxy": {
-    "context_path": "/test",
-    "endpoints": [
-      {
-        "name": "default",
-        "target": "http://localhost:8080/endpoint",
-        "http": {
-          "connectTimeout": 3000,
-          "readTimeout": 60000
+    "id": "my-api",
+    "name": "my-api-el",
+    "gravitee": "2.0.0",
+    "proxy": {
+        "context_path": "/test",
+        "endpoints": [
+            {
+                "name": "default",
+                "target": "http://localhost:8080/endpoint",
+                "http": {
+                    "connectTimeout": 3000,
+                    "readTimeout": 60000
+                }
+            }
+        ]
+    },
+    "flows": [
+        {
+            "name": "flow-1",
+            "methods": ["POST"],
+            "enabled": true,
+            "path-operator": {
+                "path": "/",
+                "operator": "STARTS_WITH"
+            },
+            "pre": [
+                {
+                    "name": "Assign Attributes",
+                    "description": "",
+                    "enabled": true,
+                    "policy": "policy-assign-attributes",
+                    "configuration": {
+                        "scope": "REQUEST_CONTENT",
+                        "attributes": [
+                            {
+                                "name": "test-request-content",
+                                "value": "{#request.content}"
+                            }
+                        ]
+                    }
+                },
+                {
+                    "name": "Attributes to headers",
+                    "description": "",
+                    "enabled": true,
+                    "policy": "attributes-to-headers",
+                    "scope": "REQUEST_CONTENT",
+                    "configuration": {}
+                }
+            ],
+            "post": [
+                {
+                    "name": "Assign Attributes",
+                    "description": "",
+                    "enabled": true,
+                    "policy": "policy-assign-attributes",
+                    "configuration": {
+                        "scope": "RESPONSE_CONTENT",
+                        "attributes": [
+                            {
+                                "name": "test-response-content",
+                                "value": "{#response.content}"
+                            }
+                        ]
+                    }
+                },
+                {
+                    "name": "Attributes to headers",
+                    "description": "",
+                    "enabled": true,
+                    "policy": "attributes-to-headers",
+                    "scope": "RESPONSE_CONTENT",
+                    "configuration": {}
+                }
+            ]
         }
-      }
     ]
-  },
-  "flows": [
-    {
-      "name": "flow-1",
-      "methods": [
-        "POST"
-      ],
-      "enabled": true,
-      "path-operator": {
-        "path": "/",
-        "operator": "STARTS_WITH"
-      },
-      "pre": [
-        {
-          "name": "Assign Attributes",
-          "description": "",
-          "enabled": true,
-          "policy": "policy-assign-attributes",
-          "configuration": {
-            "scope": "REQUEST_CONTENT",
-            "attributes": [
-              {
-                "name": "test-request-content",
-                "value": "{#request.content}"
-              }
-            ]
-          }
-        },
-        {
-          "name": "Attributes to headers",
-          "description": "",
-          "enabled": true,
-          "policy": "attributes-to-headers",
-          "scope": "REQUEST_CONTENT",
-          "configuration": {}
-        }
-      ],
-      "post": [
-        {
-          "name": "Assign Attributes",
-          "description": "",
-          "enabled": true,
-          "policy": "policy-assign-attributes",
-          "configuration": {
-            "scope": "RESPONSE_CONTENT",
-            "attributes": [
-              {
-                "name": "test-response-content",
-                "value": "{#response.content}"
-              }
-            ]
-          }
-        },
-        {
-          "name": "Attributes to headers",
-          "description": "",
-          "enabled": true,
-          "policy": "attributes-to-headers",
-          "scope": "RESPONSE_CONTENT",
-          "configuration": {}
-        }
-      ]
-    }
-  ]
 }
