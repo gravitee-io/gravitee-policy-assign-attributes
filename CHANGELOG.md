@@ -1,3 +1,10 @@
+## [2.0.1](https://github.com/gravitee-io/gravitee-policy-assign-attributes/compare/2.0.0...2.0.1) (2023-07-20)
+
+
+### Bug Fixes
+
+* update policy description ([723e2ca](https://github.com/gravitee-io/gravitee-policy-assign-attributes/commit/723e2ca31d5dc5ed9b37ba2416093a8a1de8ef64))
+
 # [2.0.0](https://github.com/gravitee-io/gravitee-policy-assign-attributes/compare/1.5.1...2.0.0) (2023-07-18)
 
 
