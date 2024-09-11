@@ -1,3 +1,10 @@
+## [2.0.2](https://github.com/gravitee-io/gravitee-policy-assign-attributes/compare/2.0.1...2.0.2) (2024-09-11)
+
+
+### Bug Fixes
+
+* json-schema - add code editor for attribute values ([9fa4a86](https://github.com/gravitee-io/gravitee-policy-assign-attributes/commit/9fa4a86a3badb7e9c88b4c44b3641fa586ceedfe))
+
 ## [2.0.1](https://github.com/gravitee-io/gravitee-policy-assign-attributes/compare/2.0.0...2.0.1) (2023-07-20)
 
 
