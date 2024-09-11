@@ -27,6 +27,12 @@
                         "title": "Value",
                         "description": "Value of the attribute (Support EL).",
                         "type": "string",
+                        "format": "gio-code-editor",
+                        "gioConfig": {
+                            "monacoEditorConfig": {
+                                "language": "json"
+                            }
+                        },
                         "x-schema-form": {
                             "expression-language": true
                         }
