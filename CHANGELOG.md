@@ -1,3 +1,10 @@
+## [2.0.3](https://github.com/gravitee-io/gravitee-policy-assign-attributes/compare/2.0.2...2.0.3) (2024-09-13)
+
+
+### Bug Fixes
+
+* json-schema - remove json forced language ([2eac825](https://github.com/gravitee-io/gravitee-policy-assign-attributes/commit/2eac825093016607c34eb07d07f5dde2d321e863))
+
 ## [2.0.2](https://github.com/gravitee-io/gravitee-policy-assign-attributes/compare/2.0.1...2.0.2) (2024-09-11)
 
 
