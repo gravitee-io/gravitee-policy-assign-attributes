@@ -107,7 +107,7 @@ public class AssignAttributesPolicyTest {
         lenient().when(response.onMessage(any())).thenReturn(spyCompletable);
 
         //Message
-        message = new DefaultMessage("content");
+        message = DefaultMessage.builder().content("content").build();
         templateEngine.getTemplateContext().setVariable("message", message);
     }
 
