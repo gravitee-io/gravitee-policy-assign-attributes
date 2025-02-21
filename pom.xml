@@ -30,7 +30,7 @@
     <parent>
         <groupId>io.gravitee</groupId>
         <artifactId>gravitee-parent</artifactId>
-        <version>22.0.2</version>
+        <version>22.2.5</version>
     </parent>
 
     <properties>
@@ -41,7 +41,6 @@
         <gravitee-sse.version>4.0.0</gravitee-sse.version>
         <gravitee-reactor-message.version>1.0.1</gravitee-reactor-message.version>
 
-        <maven-plugin-assembly.version>3.7.1</maven-plugin-assembly.version>
         <maven-plugin-properties.version>1.1.0</maven-plugin-properties.version>
 
         <!-- Property used by the publication job in CI-->
@@ -167,7 +166,6 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-assembly-plugin</artifactId>
-                <version>${maven-plugin-assembly.version}</version>
                 <configuration>
                     <appendAssemblyId>false</appendAssemblyId>
                     <descriptors>
