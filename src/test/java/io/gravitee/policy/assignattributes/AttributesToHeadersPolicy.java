@@ -23,11 +23,10 @@ import io.gravitee.gateway.api.http.HttpHeaders;
 import io.gravitee.gateway.api.stream.BufferedReadWriteStream;
 import io.gravitee.gateway.api.stream.ReadWriteStream;
 import io.gravitee.gateway.api.stream.SimpleReadWriteStream;
-import io.gravitee.gateway.reactive.api.context.GenericExecutionContext;
-import io.gravitee.gateway.reactive.api.context.HttpExecutionContext;
-import io.gravitee.gateway.reactive.api.context.MessageExecutionContext;
+import io.gravitee.gateway.reactive.api.context.http.HttpMessageExecutionContext;
+import io.gravitee.gateway.reactive.api.context.http.HttpPlainExecutionContext;
 import io.gravitee.gateway.reactive.api.message.Message;
-import io.gravitee.gateway.reactive.api.policy.Policy;
+import io.gravitee.gateway.reactive.api.policy.http.HttpPolicy;
 import io.gravitee.policy.api.PolicyChain;
 import io.gravitee.policy.api.annotations.OnRequest;
 import io.gravitee.policy.api.annotations.OnRequestContent;
@@ -40,7 +39,7 @@ import io.reactivex.rxjava3.core.Maybe;
  * @author Yann TAVERNIER (yann.tavernier at graviteesource.com)
  * @author GraviteeSource Team
  */
-public class AttributesToHeadersPolicy implements Policy {
+public class AttributesToHeadersPolicy implements HttpPolicy {
 
     @Override
     public String id() {
@@ -48,26 +47,26 @@ public class AttributesToHeadersPolicy implements Policy {
     }
 
     @Override
-    public Completable onRequest(HttpExecutionContext ctx) {
+    public Completable onRequest(HttpPlainExecutionContext ctx) {
         return Completable.fromRunnable(() -> {
             transform(ctx, "test-request-", ctx.request().headers());
         });
     }
 
     @Override
-    public Completable onResponse(HttpExecutionContext ctx) {
+    public Completable onResponse(HttpPlainExecutionContext ctx) {
         return Completable.fromRunnable(() -> {
             transform(ctx, "test-response-", ctx.response().headers());
         });
     }
 
     @Override
-    public Completable onMessageRequest(MessageExecutionContext ctx) {
+    public Completable onMessageRequest(HttpMessageExecutionContext ctx) {
         return ctx.request().onMessage(message -> transformMessage(message, "test-message-request-"));
     }
 
     @Override
-    public Completable onMessageResponse(MessageExecutionContext ctx) {
+    public Completable onMessageResponse(HttpMessageExecutionContext ctx) {
         return ctx.response().onMessage(message -> transformMessage(message, "test-message-response-"));
     }
 
@@ -136,7 +135,7 @@ public class AttributesToHeadersPolicy implements Policy {
             });
     }
 
-    private void transform(GenericExecutionContext context, String prefix, HttpHeaders headers) {
+    private void transform(HttpPlainExecutionContext context, String prefix, HttpHeaders headers) {
         context
             .getAttributes()
             .forEach((key, value) -> {

@@ -25,16 +25,13 @@ import static org.mockito.Mockito.verify;
 
 import io.gravitee.el.TemplateEngine;
 import io.gravitee.gateway.api.http.HttpHeaders;
-import io.gravitee.gateway.reactive.api.context.ExecutionContext;
-import io.gravitee.gateway.reactive.api.context.Request;
-import io.gravitee.gateway.reactive.api.context.Response;
+import io.gravitee.gateway.reactive.api.context.http.HttpExecutionContext;
+import io.gravitee.gateway.reactive.api.context.http.HttpRequest;
+import io.gravitee.gateway.reactive.api.context.http.HttpResponse;
 import io.gravitee.gateway.reactive.api.el.EvaluableRequest;
 import io.gravitee.gateway.reactive.api.el.EvaluableResponse;
 import io.gravitee.gateway.reactive.api.message.DefaultMessage;
 import io.gravitee.gateway.reactive.api.message.Message;
-import io.gravitee.gateway.reactive.core.context.MutableExecutionContext;
-import io.gravitee.gateway.reactive.core.context.MutableRequest;
-import io.gravitee.gateway.reactive.core.context.MutableResponse;
 import io.gravitee.gateway.reactive.core.context.interruption.InterruptionFailureException;
 import io.gravitee.policy.assignattributes.configuration.AssignAttributesPolicyConfiguration;
 import io.reactivex.rxjava3.core.Completable;
@@ -62,14 +59,14 @@ import org.mockito.junit.jupiter.MockitoExtension;
 @DisplayNameGeneration(DisplayNameGenerator.ReplaceUnderscores.class)
 public class AssignAttributesPolicyTest {
 
-    @Mock(extraInterfaces = MutableExecutionContext.class)
-    private ExecutionContext ctx;
+    @Mock
+    private HttpExecutionContext ctx;
 
-    @Mock(extraInterfaces = MutableRequest.class)
-    private Request request;
+    @Mock
+    private HttpRequest request;
 
-    @Mock(extraInterfaces = MutableResponse.class)
-    private Response response;
+    @Mock
+    private HttpResponse response;
 
     @Spy
     private Completable spyCompletable = Completable.complete();
