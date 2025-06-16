@@ -19,8 +19,13 @@ import io.gravitee.gateway.reactive.api.context.base.BaseExecutionContext;
 import io.gravitee.gateway.reactive.api.context.base.BaseMessageExecutionContext;
 import io.gravitee.gateway.reactive.api.context.http.HttpMessageExecutionContext;
 import io.gravitee.gateway.reactive.api.context.http.HttpPlainExecutionContext;
+import io.gravitee.gateway.reactive.api.context.kafka.KafkaConnectionContext;
+import io.gravitee.gateway.reactive.api.context.kafka.KafkaExecutionContext;
+import io.gravitee.gateway.reactive.api.context.kafka.KafkaMessageExecutionContext;
 import io.gravitee.gateway.reactive.api.message.Message;
+import io.gravitee.gateway.reactive.api.message.kafka.KafkaMessage;
 import io.gravitee.gateway.reactive.api.policy.http.HttpPolicy;
+import io.gravitee.gateway.reactive.api.policy.kafka.KafkaPolicy;
 import io.gravitee.policy.assignattributes.configuration.AssignAttributesPolicyConfiguration;
 import io.gravitee.policy.v3.assignattributes.AssignAttributesPolicyV3;
 import io.reactivex.rxjava3.core.Completable;
@@ -33,7 +38,7 @@ import lombok.extern.slf4j.Slf4j;
  * @author GraviteeSource Team
  */
 @Slf4j
-public class AssignAttributesPolicy extends AssignAttributesPolicyV3 implements HttpPolicy {
+public class AssignAttributesPolicy extends AssignAttributesPolicyV3 implements HttpPolicy, KafkaPolicy {
 
     private final Flowable<Attribute> attributeFlowable;
 
@@ -73,6 +78,31 @@ public class AssignAttributesPolicy extends AssignAttributesPolicyV3 implements 
         return ctx.response().onMessage(message -> assign(ctx, message));
     }
 
+    @Override
+    public Completable onInitialize(KafkaConnectionContext ctx) {
+        return assign(ctx);
+    }
+
+    @Override
+    public Completable onRequest(KafkaExecutionContext ctx) {
+        return assign(ctx);
+    }
+
+    @Override
+    public Completable onResponse(KafkaExecutionContext ctx) {
+        return assign(ctx);
+    }
+
+    @Override
+    public Completable onMessageRequest(KafkaMessageExecutionContext ctx) {
+        return ctx.request().onMessage(message -> assign(ctx, message));
+    }
+
+    @Override
+    public Completable onMessageResponse(KafkaMessageExecutionContext ctx) {
+        return ctx.response().onMessage(message -> assign(ctx, message));
+    }
+
     private Completable assign(BaseExecutionContext executionContext) {
         if (hasAttributes) {
             return attributeFlowable
@@ -90,6 +120,22 @@ public class AssignAttributesPolicy extends AssignAttributesPolicyV3 implements 
     }
 
     private Maybe<Message> assign(BaseMessageExecutionContext executionContext, Message message) {
+        if (hasAttributes) {
+            return attributeFlowable
+                .flatMapMaybe(attribute ->
+                    executionContext
+                        .getTemplateEngine(message)
+                        .eval(attribute.getValue(), Object.class)
+                        .doOnSuccess(extValue -> message.attribute(attribute.getName(), extValue))
+                        .onErrorComplete()
+                )
+                .ignoreElements()
+                .andThen(Maybe.just(message));
+        }
+        return Maybe.just(message);
+    }
+
+    private Maybe<KafkaMessage> assign(KafkaMessageExecutionContext executionContext, KafkaMessage message) {
         if (hasAttributes) {
             return attributeFlowable
                 .flatMapMaybe(attribute ->
