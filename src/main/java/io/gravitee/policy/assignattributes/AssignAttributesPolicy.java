@@ -15,10 +15,12 @@
  */
 package io.gravitee.policy.assignattributes;
 
-import io.gravitee.gateway.reactive.api.context.HttpExecutionContext;
-import io.gravitee.gateway.reactive.api.context.MessageExecutionContext;
+import io.gravitee.gateway.reactive.api.context.base.BaseExecutionContext;
+import io.gravitee.gateway.reactive.api.context.base.BaseMessageExecutionContext;
+import io.gravitee.gateway.reactive.api.context.http.HttpMessageExecutionContext;
+import io.gravitee.gateway.reactive.api.context.http.HttpPlainExecutionContext;
 import io.gravitee.gateway.reactive.api.message.Message;
-import io.gravitee.gateway.reactive.api.policy.Policy;
+import io.gravitee.gateway.reactive.api.policy.http.HttpPolicy;
 import io.gravitee.policy.assignattributes.configuration.AssignAttributesPolicyConfiguration;
 import io.gravitee.policy.v3.assignattributes.AssignAttributesPolicyV3;
 import io.reactivex.rxjava3.core.Completable;
@@ -31,7 +33,7 @@ import lombok.extern.slf4j.Slf4j;
  * @author GraviteeSource Team
  */
 @Slf4j
-public class AssignAttributesPolicy extends AssignAttributesPolicyV3 implements Policy {
+public class AssignAttributesPolicy extends AssignAttributesPolicyV3 implements HttpPolicy {
 
     private final Flowable<Attribute> attributeFlowable;
 
@@ -52,26 +54,26 @@ public class AssignAttributesPolicy extends AssignAttributesPolicyV3 implements 
     }
 
     @Override
-    public Completable onRequest(HttpExecutionContext ctx) {
+    public Completable onRequest(HttpPlainExecutionContext ctx) {
         return assign(ctx);
     }
 
     @Override
-    public Completable onResponse(HttpExecutionContext ctx) {
+    public Completable onResponse(HttpPlainExecutionContext ctx) {
         return assign(ctx);
     }
 
     @Override
-    public Completable onMessageRequest(MessageExecutionContext ctx) {
+    public Completable onMessageRequest(HttpMessageExecutionContext ctx) {
         return ctx.request().onMessage(message -> assign(ctx, message));
     }
 
     @Override
-    public Completable onMessageResponse(MessageExecutionContext ctx) {
+    public Completable onMessageResponse(HttpMessageExecutionContext ctx) {
         return ctx.response().onMessage(message -> assign(ctx, message));
     }
 
-    private Completable assign(HttpExecutionContext executionContext) {
+    private Completable assign(BaseExecutionContext executionContext) {
         if (hasAttributes) {
             return attributeFlowable
                 .flatMapMaybe(attribute ->
@@ -87,7 +89,7 @@ public class AssignAttributesPolicy extends AssignAttributesPolicyV3 implements 
         return Completable.complete();
     }
 
-    private Maybe<Message> assign(MessageExecutionContext executionContext, Message message) {
+    private Maybe<Message> assign(BaseMessageExecutionContext executionContext, Message message) {
         if (hasAttributes) {
             return attributeFlowable
                 .flatMapMaybe(attribute ->
