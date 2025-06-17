@@ -1,3 +1,20 @@
+# [3.0.0](https://github.com/gravitee-io/gravitee-policy-assign-attributes/compare/2.0.3...3.0.0) (2025-06-17)
+
+
+### chore
+
+* make policy compatible with apim 4.8.0 ([424cf3e](https://github.com/gravitee-io/gravitee-policy-assign-attributes/commit/424cf3e92679bf5d61ba65ec8e6b304fa1e103e8))
+
+
+### Features
+
+* enable assign attribute policy for native apis ([619b191](https://github.com/gravitee-io/gravitee-policy-assign-attributes/commit/619b19172f6062e766c600d8b093669b72d22638))
+
+
+### BREAKING CHANGES
+
+* require APIM 4.8.0+ to work
+
 ## [2.0.3](https://github.com/gravitee-io/gravitee-policy-assign-attributes/compare/2.0.2...2.0.3) (2024-09-13)
 
 
