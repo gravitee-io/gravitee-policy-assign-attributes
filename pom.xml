@@ -37,7 +37,7 @@
         <gravitee-apim.version>4.8.0-alpha.2</gravitee-apim.version>
 
         <gravitee-sse.version>5.0.0</gravitee-sse.version>
-        <gravitee-reactor-message.version>7.0.0-alpha.4</gravitee-reactor-message.version>
+        <gravitee-reactor-message.version>7.0.0</gravitee-reactor-message.version>
 
         <maven-plugin-properties.version>1.2.1</maven-plugin-properties.version>
 
