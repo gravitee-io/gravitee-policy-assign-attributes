@@ -101,6 +101,54 @@ public class AssignAttributesPolicyV4EngineIntegrationTest extends V4EngineTest 
     }
 
     @Test
+    @DisplayName("Should assign attributes with EL (and convert them to headers for test purpose)")
+    @DeployApi("/apis/v4/assign-multiple-attributes-with-el.json")
+    void should_assign_multiple_attributes_with_EL(HttpClient client) {
+        String requestContent =
+            """
+                            {
+                                "registrationForm": {
+                                    "username": "username345",
+                                    "firstName": "firstname123",
+                                    "birthDate": "1928-04-20"
+                                }
+                            }
+                            """;
+        String responseContent =
+            """
+                        {
+                            "responseForm": {
+                                "username": "usernameResp345",
+                                "firstName": "firstnameResp123",
+                                "birthDate": "1928-04-20"
+                            }
+                        }
+                        """;
+        wiremock.stubFor(post("/endpoint").withRequestBody(equalTo(requestContent)).willReturn(ok(responseContent)));
+
+        client
+            .rxRequest(POST, "/testMultiple")
+            .flatMap(request -> request.rxSend(Buffer.buffer(requestContent)))
+            .flatMapPublisher(response -> {
+                assertThat(response.statusCode()).isEqualTo(200);
+                assertThat(response.headers().get("test-response-content")).isEqualTo("firstnameResp123");
+                assertThat(response.headers().get("test-response-content1")).isEqualTo("1928-04-20");
+                assertThat(response.headers().get("test-response-content2")).isEqualTo("usernameResp345");
+                return response.toFlowable();
+            })
+            .test()
+            .awaitDone(10, TimeUnit.SECONDS)
+            .assertNoErrors();
+        wiremock.verify(
+            1,
+            postRequestedFor(urlPathEqualTo("/endpoint"))
+                .withHeader("test-request-content", equalTo("firstname123"))
+                .withHeader("test-request-content1", equalTo("1928-04-20"))
+                .withHeader("test-request-content2", equalTo("username345"))
+        );
+    }
+
+    @Test
     @DisplayName("Should assign attributes on message response (and convert them to headers for test purpose)")
     @DeployApi({ "/apis/v4/subscribe-assign-attributes-message.json" })
     void should_assign_attributes_on_message_response(HttpClient client) {
