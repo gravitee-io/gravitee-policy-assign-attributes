@@ -74,7 +74,7 @@ public class AssignAttributesPolicy extends AssignAttributesPolicyV3 implements 
     private Completable assign(HttpExecutionContext executionContext) {
         if (hasAttributes) {
             return attributeFlowable
-                .flatMapMaybe(attribute ->
+                .concatMapMaybe(attribute ->
                     executionContext
                         .getTemplateEngine()
                         .eval(attribute.getValue(), Object.class)
