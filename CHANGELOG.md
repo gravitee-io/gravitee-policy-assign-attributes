@@ -1,3 +1,10 @@
+## [3.0.1](https://github.com/gravitee-io/gravitee-policy-assign-attributes/compare/3.0.0...3.0.1) (2025-07-02)
+
+
+### Bug Fixes
+
+* changed flatMapMaybe to concatMapMaybe ([31e7d81](https://github.com/gravitee-io/gravitee-policy-assign-attributes/commit/31e7d81387795051ac2d02cc1fd0f03910982ae3))
+
 # [3.0.0](https://github.com/gravitee-io/gravitee-policy-assign-attributes/compare/2.0.3...3.0.0) (2025-06-17)
 
 
