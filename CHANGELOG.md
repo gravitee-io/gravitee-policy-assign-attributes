@@ -1,3 +1,10 @@
+## [3.0.2](https://github.com/gravitee-io/gravitee-policy-assign-attributes/compare/3.0.1...3.0.2) (2025-09-01)
+
+
+### Bug Fixes
+
+* use this policy on request/response phases ([c4e4e35](https://github.com/gravitee-io/gravitee-policy-assign-attributes/commit/c4e4e3514dff43e3fbb655c66d9491e319689d49))
+
 ## [3.0.1](https://github.com/gravitee-io/gravitee-policy-assign-attributes/compare/3.0.0...3.0.1) (2025-07-02)
 
 
