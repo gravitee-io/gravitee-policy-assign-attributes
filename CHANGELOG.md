@@ -1,3 +1,10 @@
+# [3.1.0](https://github.com/gravitee-io/gravitee-policy-assign-attributes/compare/3.0.2...3.1.0) (2025-12-11)
+
+
+### Features
+
+* enable for LLM & MCP Proxy API ([cc71b88](https://github.com/gravitee-io/gravitee-policy-assign-attributes/commit/cc71b886717b5fcfcd3f44494d719b3197d161d5))
+
 # [3.1.0-alpha.1](https://github.com/gravitee-io/gravitee-policy-assign-attributes/compare/3.0.2...3.1.0-alpha.1) (2025-11-12)
 
 
