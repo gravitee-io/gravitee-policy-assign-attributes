@@ -1,3 +1,10 @@
+# [3.2.0](https://github.com/gravitee-io/gravitee-policy-assign-attributes/compare/3.1.0...3.2.0) (2026-02-18)
+
+
+### Features
+
+* enable for A2A proxy ([ec4a9ab](https://github.com/gravitee-io/gravitee-policy-assign-attributes/commit/ec4a9ab60af02b272d8c5cbcc96c095fe662c818))
+
 # [3.1.0](https://github.com/gravitee-io/gravitee-policy-assign-attributes/compare/3.0.2...3.1.0) (2025-12-11)
 
 
