@@ -1,0 +1,17 @@
+{
+    "scope": "RESPONSE_CONTENT",
+    "attributes": [
+        {
+            "name": "test-response-content",
+            "value": "{#jsonPath(#response.content, '$.responseForm.firstName')}"
+        },
+        {
+            "name": "test-response-content1",
+            "value": "{#jsonPath(#response.content, '$.responseForm.birthDate')}"
+        },
+        {
+            "name": "test-response-content2",
+            "value": "{#jsonPath(#response.content, '$.responseForm.username')}"
+        }
+    ]
+}

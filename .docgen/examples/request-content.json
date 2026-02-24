@@ -1,0 +1,17 @@
+{
+    "scope": "REQUEST_CONTENT",
+    "attributes": [
+        {
+            "name": "test-request-content",
+            "value": "{#jsonPath(#request.content, '$.registrationForm.firstName')}"
+        },
+        {
+            "name": "test-request-content1",
+            "value": "{#jsonPath(#request.content, '$.registrationForm.birthDate')}"
+        },
+        {
+            "name": "test-request-content2",
+            "value": "{#jsonPath(#request.content, '$.registrationForm.username')}"
+        }
+    ]
+}
