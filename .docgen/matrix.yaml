@@ -1,0 +1,11 @@
+rows:
+    - data:
+          plugin: "3.x"
+          apim: "4.8.x to latest"
+    - data:
+          plugin: "2.x"
+          apim: "4.0.x to 4.7.x"
+    - data:
+          plugin: "1.x"
+          apim: "3.x"
+      deprecated: true

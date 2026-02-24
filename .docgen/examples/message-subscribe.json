@@ -1,0 +1,8 @@
+{
+    "attributes": [
+        {
+            "name": "test-message-response-attr1",
+            "value": "{#message.content}"
+        }
+    ]
+}
