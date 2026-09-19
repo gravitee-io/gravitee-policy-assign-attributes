@@ -40,11 +40,11 @@ The `policy-assign-attributes` policy can be applied to the following API types 
 ## Compatibility matrix
 Strikethrough text indicates that a version is deprecated.
 
-| Plugin version| APIM |
-| --- | ---  |
-|3.x|4.8.x to latest |
-|2.x|4.0.x to 4.7.x |
-|~~1.x~~|~~3.x~~ |
+| Plugin version| APIM| Java version |
+| --- | --- | ---  |
+|3.x|4.8.x to latest|21 |
+|2.x|4.0.x to 4.7.x|17 |
+|~~1.x~~|~~3.x~~|~~11~~ |
 
 
 ## Configuration options
